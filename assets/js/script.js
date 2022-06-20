@@ -162,13 +162,13 @@ var taskStatusChangeHandler = function (event) {
     tasksInProgressEl.appendChild(taskSelected);
   } else if (statusValue === "completed") {
     tasksCompletedEl.appendChild(taskSelected);
-  };
+  }
 
   for (var i = 0; i < tasks.length; i++) {
     if (tasks[i].id === parseInt(taskId)) {
       tasks[i].status = statusValue;
     }
-  };
+  }
   saveTasks();
 };
 
@@ -221,6 +221,52 @@ var deleteTask = function (taskId) {
 var saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+var loadTasks = function () {
+  // get task items form localStorage
+
+  tasks = localStorage.tasks;
+
+  if (!tasks) {
+    tasks = [];
+    return false;
+  }
+  // convert tasks fromm the string back into the array of objects
+  tasks = JSON.parse(tasks);
+  console.log(tasks);
+  // iterate through each rask and create task elements
+
+  for (var i = 0; i < tasks.length; i++) {
+    var listItemEl = document.createElement("li");
+    tasks[i].id = taskIdCounter;
+    listItemEl.className = "task-item";
+    listItemEl.setAttribute("data-task-id", tasks[i].id);
+    var taskInfoEl = document.createElement("div");
+    taskInfoEl.className = "task-info";
+    taskInfoEl.innerHTML =
+      "<h3 class='task-name'>" +
+      tasks[i].name +
+      "</h3><span class='task-type'>" +
+      tasks[i].type +
+      "</span>";
+    listItemEl.appendChild(taskInfoEl);
+
+    var taskActionsEl = createTaskActions(tasks[i].id);
+    listItemEl.appendChild(taskActionsEl);
+    if (tasks[i].status === "to do") {
+      listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+      tasksToDoEl.appendChild(listItemEl);
+    } else if (tasks[i].status === "in progress") {
+      listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
+      tasksInProgressEl.appendChild(listItemEl);
+    } else if (tasks[i].status === "completed") {
+      listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
+      tasksCompletedEl.appendChild(listItemEl);
+    }
+    taskIdCounter++;
+  }
+};
+loadTasks();
 // Create a new task
 formEl.addEventListener("submit", taskFormHandler);
 
